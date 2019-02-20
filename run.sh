@@ -22,6 +22,7 @@ if [[ -d $LIB_FILE ]]; then
 elif [[ -f $LIB_FILE ]]; then
     echo $(basename $LIB_FILE)" is a file"
     echo "[+] Checking file: "$(basename $LIB_FILE)
+    ./check_lib.sh $LIB_FILE > "report_$(basename $LIB_FILE).txt"
 else
     echo "$LIB_FILE is not valid"
     exit 1
