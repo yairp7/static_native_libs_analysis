@@ -1,7 +1,25 @@
 #!/bin/sh
 
 LIB_FILE=$1
-SUSPICIOUS_KEYWORDS=("ptrace" "/bin" "root" "dex" "/proc")
+SUSPICIOUS_KEYWORDS=("ptrace" "/bin" "root" "dex" "/proc" "")
+
+declare -a SUSPICIOUS_KEYWORDS
+printf "[+] Getting suspicious keywords - "
+if [[ -f "suspicious_keywords.dat" ]]; then
+    IFS=$'\n' read -d '' -r -a SUSPICIOUS_KEYWORDS < "suspicious_keywords.dat"
+    printf "Done.\n"
+else
+    printf "Not exist.\n"
+fi
+
+declare -a SUSPICIOUS_SYMBOLS
+printf "[+] Getting suspicious symbols - "
+if [[ -f "suspicious_keywords.dat" ]]; then
+    IFS=$'\n' read -d '' -r -a SUSPICIOUS_SYMBOLS < "suspicious_symbols.dat"
+    printf "Done.\n"
+else
+    printf "Not exist.\n"
+fi
 
 function start_section {
 	echo "### ${1} ###"

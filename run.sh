@@ -7,24 +7,73 @@ then
 	exit 1
 fi
 
-LIB_FILE=$1
+FILENAME=$1
 
-if [[ -d $LIB_FILE ]]; then
-    echo $(basename $LIB_FILE)" is a directory"
-    fileCount=0
-	IFS=$'\n' files=( $(find $1 -name '*.so' -print) )
-	for f in "${files[@]}"; do
-		fileCount=$(( fileCount+1 ))
-    	echo "[+] Checking file: "$(basename $f)"[${fileCount} / ${#files[@]}]"
-    	./check_lib.sh $f > "report_$(basename $f).txt"
-	done
-	echo "[+] Done."
-elif [[ -f $LIB_FILE ]]; then
-    echo $(basename $LIB_FILE)" is a file"
-    echo "[+] Checking file: "$(basename $LIB_FILE)
-    ./check_lib.sh $LIB_FILE > "report_$(basename $LIB_FILE).txt"
+declare -a FILES_TO_IGNORE
+printf "[+] Getting files to ignore - "
+if [[ -f "files_to_ignore.dat" ]]; then
+    IFS=$'\n' read -d '' -r -a FILES_TO_IGNORE < "files_to_ignore.dat"
+    printf "Done.\n"
 else
-    echo "$LIB_FILE is not valid"
+    printf "Not exist.\n"
+fi
+
+function is_file_ok {
+    for f in "${FILES_TO_IGNORE[@]}"; do
+        if [[ $1 =~ $f ]]; then
+            echo "ignore"
+        fi
+    done
+    echo "ok"
+}
+
+function check_file {
+    if [[ -f $2 ]]; then
+        ./check_bin.sh $1 >> $2
+    else
+        ./check_bin.sh $1 > $2
+    fi
+}
+
+function traverse_dir {
+    REPORT="report_$(basename $1).txt"
+    if [[ -f "${REPORT}" ]]; then
+        rm ${REPORT}
+    fi
+    fileCount=0
+    IFS=$'\n' files=( $(find $1 -type f) )
+    for f in "${files[@]}"; do
+        fileCount=$(( fileCount+1 ))
+        printf "[+] Checking file: "$(basename $f)"[${fileCount} / ${#files[@]}] - "
+        result=$(is_file_ok $f)
+        if [[ $result == "ok" ]]; then
+            check_file $f "report_$(basename $1).txt"
+            printf "Done.\n"
+        else
+            printf "Ignored.\n"
+        fi
+    done
+}
+
+if [[ $FILENAME == *"apk"* ]]; then
+    echo "[+]" $(basename $FILENAME)" is an APK"
+    echo "[+] extracting..."
+    if [[ ! -d "./tmp" ]]; then
+        mkdir ./tmp
+    fi
+    apktool --quiet -f d "${FILENAME}" -o "./tmp"
+    traverse_dir "./tmp"
+    rm -rf ./tmp
+elif [[ -d $FILENAME ]]; then
+    echo $(basename $FILENAME)" is a Directory"
+    traverse_dir $f
+	echo "[+] Done."
+elif [[ -f $FILENAME ]]; then
+    echo "[+]" $(basename $FILENAME)" is a File"
+    echo "[+] Checking file: "$(basename $FILENAME)
+    check_file $FILENAME "report_$(basename $1).txt"
+else
+    echo "$FILENAME is not valid"
     exit 1
 fi
 

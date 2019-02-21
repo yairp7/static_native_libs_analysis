@@ -1,0 +1,7 @@
+ptrace
+/bin
+root
+dex
+/proc
+nanosleep
+debug
