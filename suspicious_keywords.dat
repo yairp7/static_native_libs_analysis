@@ -1,7 +1,9 @@
 ptrace
 /bin
 root
-dex
 /proc
+/proc/self
 nanosleep
 debug
+System.load
+loadLibrary

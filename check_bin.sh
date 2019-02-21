@@ -1,7 +1,12 @@
 #!/bin/sh
 
+
 LIB_FILE=$1
-SUSPICIOUS_KEYWORDS=("ptrace" "/bin" "root" "dex" "/proc" "")
+COMMAND=$2
+SUSPICIOUS_KEYWORDS_FILES='./report/suspicious_keywords_files.txt'
+SUSPICIOUS_SYMBOLS_FILES='./report/suspicious_symbols_files.txt'
+
+# Load suspicious keywords from file
 
 declare -a SUSPICIOUS_KEYWORDS
 printf "[+] Getting suspicious keywords - "
@@ -12,9 +17,11 @@ else
     printf "Not exist.\n"
 fi
 
+# Load suspicious symbols from file
+
 declare -a SUSPICIOUS_SYMBOLS
 printf "[+] Getting suspicious symbols - "
-if [[ -f "suspicious_keywords.dat" ]]; then
+if [[ -f "suspicious_symbols.dat" ]]; then
     IFS=$'\n' read -d '' -r -a SUSPICIOUS_SYMBOLS < "suspicious_symbols.dat"
     printf "Done.\n"
 else
@@ -42,7 +49,19 @@ rabin2 -l $LIB_FILE
 end_section
 
 start_section "Symbols"
-rabin2 -s $LIB_FILE
+is_suspicious=0
+for index in ${!SUSPICIOUS_SYMBOLS[*]}
+do
+	echo "[+] Looking for symbol: ${SUSPICIOUS_SYMBOLS[$index]}"
+    result=$(rabin2 -s $LIB_FILE | grep "${SUSPICIOUS_SYMBOLS[$index]}")
+    if [[ ! -z $result ]]; then
+    	echo result
+    	is_suspicious=1
+    fi 
+done
+if [[ is_suspicious -eq 1 ]]; then
+	echo $LIB_FILE >> $SUSPICIOUS_SYMBOLS_FILES
+fi
 end_section
 
 start_section "Urls"
@@ -50,9 +69,17 @@ start_section "Urls"
 end_section
 
 start_section "Keywords"
+is_suspicious=0
 for index in ${!SUSPICIOUS_KEYWORDS[*]}
 do
 	echo "[+] Looking for keyword: ${SUSPICIOUS_KEYWORDS[$index]}"
-    strings $LIB_FILE | grep "${SUSPICIOUS_KEYWORDS[$index]}"
+    result=$(strings $LIB_FILE | grep "${SUSPICIOUS_KEYWORDS[$index]}")
+    if [[ ! -z $result ]]; then
+    	echo result
+    	is_suspicious=1
+    fi 
 done
+if [[ is_suspicious -eq 1 ]]; then
+	echo $LIB_FILE >> $SUSPICIOUS_KEYWORDS_FILES
+fi
 end_section

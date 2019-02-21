@@ -9,6 +9,12 @@ fi
 
 FILENAME=$1
 
+if [[ -d "./report" ]]; then
+    rm -rf ./report
+fi
+
+mkdir ./report
+
 declare -a FILES_TO_IGNORE
 printf "[+] Getting files to ignore - "
 if [[ -f "files_to_ignore.dat" ]]; then
@@ -47,7 +53,7 @@ function traverse_dir {
         printf "[+] Checking file: "$(basename $f)"[${fileCount} / ${#files[@]}] - "
         result=$(is_file_ok $f)
         if [[ $result == "ok" ]]; then
-            check_file $f "report_$(basename $1).txt"
+            check_file $f "./report/report_$(basename $1).txt"
             printf "Done.\n"
         else
             printf "Ignored.\n"
@@ -71,7 +77,7 @@ elif [[ -d $FILENAME ]]; then
 elif [[ -f $FILENAME ]]; then
     echo "[+]" $(basename $FILENAME)" is a File"
     echo "[+] Checking file: "$(basename $FILENAME)
-    check_file $FILENAME "report_$(basename $1).txt"
+    check_file $FILENAME "./report/report_$(basename $1).txt"
 else
     echo "$FILENAME is not valid"
     exit 1

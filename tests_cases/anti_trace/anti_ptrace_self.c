@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/ptrace.h>
 #include <sys/wait.h>
+#include <pthread.h>
 
 static int child_pid;
 
