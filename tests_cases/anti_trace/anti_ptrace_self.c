@@ -9,6 +9,7 @@ void *monitor_pid(void* ptr)
 {
     int status;
     waitpid(child_pid, &status, 0);
+    printf("Failed - child status changed.\n");
 	_exit(0);
 }
 
@@ -27,6 +28,7 @@ void anti_debug()
                 if (WIFSTOPPED(status)) {
                     ptrace(PTRACE_CONT, ppid, NULL, NULL);
                 } else {
+                    printf("Failed.\n");
                     _exit(0);
                 }
             }
