@@ -1,9 +1,39 @@
-ptrace
-/bin
+/system/bin
 root
-/proc
-/proc/self
-nanosleep
-debug
+# Calling third party libraries
 System.load
 loadLibrary
+.dex
+# Anti debug protection / reading process memory?
+/proc
+/proc/self
+ptrace
+nanosleep
+# Checks for rooted device
+/system/app/Superuser.apk
+/system/etc/init.d/99SuperSUDaemon
+/dev/com.koushikdutta.superuser.daemon/
+/system/xbin/daemonsu
+/sbin/su
+/system/bin/su
+/system/bin/failsafe/su
+/system/xbin/su
+/system/xbin/busybox
+/system/sd/xbin/su
+/data/local/su
+/data/local/xbin/su
+/data/local/bin/su
+com.thirdparty.superuser
+eu.chainfire.supersu
+com.noshufou.android.su
+com.koushikdutta.superuser
+com.zachspong.temprootremovejb
+com.ramdroid.appquarantine
+com.topjohnwu.magisk
+# Servers
+ServerSocket
+# Collection Methods
+getInstalledPackages
+list packages
+AccessibilityService
+

@@ -1,5 +1,7 @@
+# Anti debug protection / hooking other process?
 ptrace
 nanosleep
 getpid
 waitpid
+# Calling third party libraries
 dlopen
